@@ -1,12 +1,14 @@
 import java.io.BufferedReader
 import java.io.File
-import kotlin.math.floor
+import kotlin.math.abs
 
 class Day5 {
 
     fun run(fileName: String) {
         val (orders, linesToAnalyses) = createData(fileName);
-        println(analyseAllLine(orders, linesToAnalyses))
+        val (result, correctedResult) = analyseAllLine(orders, linesToAnalyses)
+        println("valid Result $result")
+        println("corrected Result $correctedResult")
     }
 
     private fun createData(fileName: String): Pair<Set<String>, Array<String>> {
@@ -32,18 +34,20 @@ class Day5 {
         return Pair(orders, linesToAnalyses.toTypedArray())
     }
 
-    private fun analyseAllLine(orders: Set<String>, linesToAnalyses: Array<String>): Int {
+    private fun analyseAllLine(orders: Set<String>, linesToAnalyses: Array<String>): Pair<Int, Int> {
         var result = 0
+        var correctedResult = 0
         linesToAnalyses.forEach { line ->
             run {
                 val numberForLine = validNumber(orders, line)
-                println("$numberForLine -> $line")
-                if (numberForLine != -1) {
+                if (numberForLine < 0) {
+                    correctedResult += numberForLine
+                } else {
                     result += numberForLine
                 }
             }
         }
-        return result
+        return Pair(result, abs(correctedResult))
     }
 
     private fun validNumber(orders: Set<String>, lineToAnalyse: String): Int {
@@ -55,14 +59,14 @@ class Day5 {
                         run {
                             if (orders.contains("$item2|$item1")) {
                                 val reorderedArray = reorder(orders, splittedLine)
-                                return reorderedArray[reorderedArray.size / 2].toInt()
+                                return -reorderedArray[reorderedArray.size / 2].toInt()
                             }
                         }
                     }
                 }
             }
         }
-        return -1//splittedLine[splittedLine.size / 2].toInt()
+        return splittedLine[splittedLine.size / 2].toInt()
     }
 
     private fun reorder(orders: Set<String>, splittedLine: List<String>): Array<String> {
