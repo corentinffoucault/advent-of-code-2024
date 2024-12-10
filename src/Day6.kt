@@ -1,15 +1,6 @@
 import java.io.BufferedReader
 import java.io.File
 
-data class Point2D(val x: Int, val y: Int) {
-
-    operator fun plus(other: Point2D): Point2D =
-        Point2D(x + other.x, y + other.y)
-
-    operator fun minus(other: Point2D): Point2D =
-        Point2D(x - other.x, y - other.y)
-}
-
 class Player(val map: Array<Array<String>>, val coordInit: Point2D) {
 
     fun run(): MutableSet<Point2D> {
