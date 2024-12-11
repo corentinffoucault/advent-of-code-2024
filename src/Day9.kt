@@ -86,7 +86,7 @@ class Day9 {
 
             var indexToUpdate = 0
             while (indexToUpdate<indexToMove && indexToMove>-1) {
-                if (diskData[indexToUpdate].size>0 && diskData[indexToMove].size>0 && diskData[indexToUpdate][0] == "." && diskData[indexToUpdate].size>diskData[indexToMove].size) {
+                if (diskData[indexToUpdate].size>0 && diskData[indexToMove].size>0 && diskData[indexToUpdate][0] == "." && diskData[indexToUpdate].size>=diskData[indexToMove].size) {
                     break
                 }
                 indexToUpdate++
@@ -133,8 +133,3 @@ fun main(args: Array<String>) {
     Day9().run("resource/day9.txt");
     Day9().run2("resource/day9.txt");
 }
-
-//13598006957018
-//8258254101771
-//
-//6320029754031
