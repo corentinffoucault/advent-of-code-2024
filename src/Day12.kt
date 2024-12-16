@@ -13,10 +13,28 @@ class Garden(private val groupedFlowers: Map<Char, Set<Point2D>>) {
         return result
     }
 
+    fun calculateFullCostV2(): Long {
+        var result = 0L
+        groupedFlowers.forEach { (c, group) -> run {
+            val continuousGroup = splitFlowerInContinuousGroup(group)
+            result += calculateForOneCategorieV2(c, continuousGroup)
+        } }
+        return result
+    }
+
     private fun calculateForOneCategorie(cat: Char, continuousGroups: Set<Set<Point2D>>): Long {
         var tmp = 0L
         continuousGroups.forEach{ continuousGroup -> run {
             val a = fenceSize(continuousGroup)
+            tmp += continuousGroup.size * a
+        } }
+        return tmp
+    }
+
+    private fun calculateForOneCategorieV2(cat: Char, continuousGroups: Set<Set<Point2D>>): Long {
+        var tmp = 0L
+        continuousGroups.forEach{ continuousGroup -> run {
+            val a = fenceSizeV2(cat, continuousGroup)
             tmp += continuousGroup.size * a
         } }
         return tmp
@@ -65,7 +83,7 @@ class Garden(private val groupedFlowers: Map<Char, Set<Point2D>>) {
         return res;
     }
 
-    private fun fenceSizeV2(group: Set<Point2D>): Long {
+    private fun fenceSizeV2(cat: Char, group: Set<Point2D>): Long {
         val fencesByDir = mutableMapOf<Char, MutableSet<Point2D>>()
         fencesByDir['^'] = mutableSetOf()
         fencesByDir['>'] = mutableSetOf()
@@ -74,9 +92,28 @@ class Garden(private val groupedFlowers: Map<Char, Set<Point2D>>) {
         group.forEach{ flower -> nbFenceAroundFlower(group, flower, fencesByDir) }
 
         var res = 0L
-        fencesByDir.forEach { (dir, value) -> run { res += value.size } }
+
+        fencesByDir.forEach{(key, value) -> run {
+            res += splitFlowerInContinuousGroup(cat, key, value)
+        } }
+
         // println("######## ${group.size} ${fencesByDir['^']?.size} ${fencesByDir['>']?.size} ${fencesByDir['v']?.size} ${fencesByDir['<']?.size}")
         return res;
+    }
+
+    private fun splitFlowerInContinuousGroup(cat: Char, dir: Char, flowers: MutableSet<Point2D>): Int {
+        var groupedSeen = mutableSetOf<Set<Point2D>>()
+
+        flowers.forEach { currentFlower -> run {
+            val contiguous = mutableSetOf<Set<Point2D>>()
+            val nonContiguous = mutableSetOf<Set<Point2D>>()
+            groupedSeen.forEach { if (isContiguous(it, currentFlower)) contiguous.add(it) else nonContiguous.add(it) }
+            nonContiguous.add(fusionContiguous(contiguous, currentFlower))
+            groupedSeen = nonContiguous
+
+        } }
+
+        return groupedSeen.size
     }
 
     private fun nbFenceAroundFlower(group: Set<Point2D>, flower: Point2D, fencesByDir: MutableMap<Char, MutableSet<Point2D>>): Long {
@@ -101,6 +138,7 @@ class Day12 {
     fun run(fileName: String) {
         val garden = createData(fileName)
         println("final result ${garden.calculateFullCost()}")
+        println("final resultV2 ${garden.calculateFullCostV2()}")
     }
 
     private fun createData(fileName: String): Garden {
