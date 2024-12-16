@@ -1,14 +1,18 @@
 import java.io.BufferedReader
 import java.io.File
 import kotlin.math.abs
+import kotlin.math.max
 
 class Machine(private val buttonA: Point2D, private val buttonB: Point2D, private val prize: Point2D) {
-    fun solve(): Long {
-        val valid = false
-        val nbButtonAPress = 0L
-        val nbButtonBPress = 0L
-        println("ButtonA $buttonA ButtonB $buttonB Prize $prize")
-        return if (valid) nbButtonAPress*3L + nbButtonBPress else 0L
+    fun solveWithCramer(factor: Long = 0L): Long {
+        val prizeXBig = prize.x +factor
+        val prizeYBig = prize.y +factor
+        val det = buttonA.x * buttonB.y - buttonA.y * buttonB.x
+        val a = (prizeXBig * buttonB.y - prizeYBig * buttonB.x) / det
+        val b = (buttonA.x * prizeYBig - buttonA.y * prizeXBig) / det
+        return if (buttonA.x * a + buttonB.x * b == prizeXBig && buttonA.y * a + buttonB.y * b == prizeYBig) {
+            a * 3L + b
+        } else 0L
     }
 }
 
@@ -16,7 +20,8 @@ class Day13 {
 
     fun run(fileName: String) {
         val machine = createData(fileName)
-        println("final result ${machine.fold(0L) {acc, it -> acc+ it.solve() }}")
+        println("final result ${machine.fold(0L) {acc, it -> acc+ it.solveWithCramer() }}")
+        println("final result ${machine.fold(0L) {acc, it -> acc+ it.solveWithCramer(10000000000000L) }}")
     }
 
     private fun createData(fileName: String): List<Machine> {
