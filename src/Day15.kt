@@ -63,7 +63,7 @@ class Sokoban(
                 }
                 val nextPosition = thisPosition + direction
                 when (map[nextPosition.y][nextPosition.x]) {
-                    '#' -> return null // Wall! Can't push anything!
+                    '#' -> return null
                     in "[O]" -> queue.add(nextPosition)
                 }
                 safePushes.add(thisPosition to nextPosition)
