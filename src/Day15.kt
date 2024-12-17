@@ -135,7 +135,6 @@ class Day15 {
 
     private fun getDir(dirChar: Char): Point2D {
         return when (dirChar) {
-            // Not all cases are covered
             '^' -> Point2D(0, -1)
             '<' -> Point2D(-1, 0)
             '>' -> Point2D(1, 0)
