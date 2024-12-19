@@ -4,10 +4,10 @@ import java.util.*
 import kotlin.math.abs
 import kotlin.math.pow
 
-class Computer(var varA: Int, var varB: Int, var varC: Int, private val instruction: List<Int>) {
+data class Computer(var varA: Long, var varB: Long, var varC: Long, val instruction: List<Int>) {
 
-    fun solve(): MutableList<Int> {
-        var result = mutableListOf<Int>()
+    fun solve(): MutableList<Long> {
+        var result = mutableListOf<Long>()
         var index = 0
         var nbLoop = 0
         while (index<instruction.size) {
@@ -19,22 +19,22 @@ class Computer(var varA: Int, var varB: Int, var varC: Int, private val instruct
                 0 -> {
                     println("instruction: $currentInstruction operand: $operand combo: ${getCombo(operand)}")
                     println("A: $varA B: $varB C: $varC")
-                    varA = (varA/2.0.pow(getCombo(operand))).toInt()
+                    varA = (varA/2.0.pow(getCombo(operand).toInt())).toLong()
                 }
                 1 -> {
                     println("instruction: $currentInstruction operand: $operand ")
                     println("A: $varA B: $varB C: $varC")
-                    varB = (varB xor operand)
+                    varB = (varB xor operand.toLong())
                 }
                 2 -> {
                     println("instruction: $currentInstruction operand: $operand combo: ${getCombo(operand)}")
                     println("A: $varA B: $varB C: $varC")
-                    varB = Math.floorMod(getCombo(operand),8) and 0b111
+                    varB = Math.floorMod(getCombo(operand),8).toLong() and 0b111
                 }
                 3 -> {
                     println("instruction: $currentInstruction operand: $operand ")
                     println("A: $varA B: $varB C: $varC")
-                    if (varA != 0) {
+                    if (varA != 0L) {
                         index = operand
                     }
                 }
@@ -46,17 +46,17 @@ class Computer(var varA: Int, var varB: Int, var varC: Int, private val instruct
                 5 -> {
                     println("instruction: $currentInstruction operand: $operand combo: ${getCombo(operand)}")
                     println("A: $varA B: $varB C: $varC")
-                    result.add(Math.floorMod(getCombo(operand),8))
+                    result.add(Math.floorMod(getCombo(operand),8).toLong())
                 }
                 6 -> {
                     println("instruction: $currentInstruction operand: $operand  combo: ${getCombo(operand)}")
                     println("A: $varA B: $varB C: $varC")
-                    varB = (varA/2.0.pow(getCombo(operand))).toInt()
+                    varB = (varA/2.0.pow(getCombo(operand).toInt())).toLong()
                 }
                 7 -> {
                     println("instruction: $currentInstruction operand: $operand  combo: ${getCombo(operand)}")
                     println("A: $varA B: $varB C: $varC")
-                    varC = (varA/2.0.pow(getCombo(operand))).toInt()
+                    varC = (varA/2.0.pow(getCombo(operand).toInt())).toLong()
                 }
             }
             println("A: $varA B: $varB C: $varC")
@@ -65,12 +65,12 @@ class Computer(var varA: Int, var varB: Int, var varC: Int, private val instruct
         return result
     }
 
-    private fun getCombo(value: Int): Int {
+    private fun getCombo(value: Int): Long {
         return when(value) {
-            0 -> value
-            1 -> value
-            2 -> value
-            3 -> value
+            0 -> 0L
+            1 -> 1L
+            2 -> 2L
+            3 -> 3L
             4 -> varA
             5 -> varB
             6 -> varC
@@ -114,13 +114,33 @@ class Day17 {
         println("A: ${computer.varA} B: ${computer.varB} C: ${computer.varC}")
     }
 
+    fun run2(fileName: String) {
+        val computer = createData(fileName)
+        var res = computer.instruction
+            .reversed()
+            .map { it.toLong() }
+            .fold(listOf(0L)) { candidates, instruction ->
+                candidates.flatMap { candidate ->
+                    val shifted = candidate shl 3
+                    (shifted..shifted + 8).mapNotNull { attempt ->
+                        computer.copy().run {
+                            varA = attempt
+                            attempt.takeIf { solve().first() == instruction }
+                        }
+                    }
+                }
+            }.first()
+
+        println("res $res")
+    }
+
     private fun createData(fileName: String): Computer {
         val bufferedReader: BufferedReader = File(fileName).bufferedReader()
         val iterator = bufferedReader.lineSequence().iterator()
         val reg = Regex("Register [ABC]: ([0-9]+)")
-        val varA = reg.find(iterator.next())!!.groups[1]!!.value.toInt() ?: 0
-        val varB = reg.find(iterator.next())!!.groups[1]!!.value.toInt() ?: 0
-        val varC = reg.find(iterator.next())!!.groups[1]!!.value.toInt() ?: 0
+        val varA = reg.find(iterator.next())!!.groups[1]!!.value.toLong() ?: 0
+        val varB = reg.find(iterator.next())!!.groups[1]!!.value.toLong() ?: 0
+        val varC = reg.find(iterator.next())!!.groups[1]!!.value.toLong() ?: 0
         iterator.next()
         val instruction = iterator.next().split(" ")[1].split(',').map { it.toInt() }
         bufferedReader.close()
@@ -131,6 +151,7 @@ class Day17 {
 fun main(args: Array<String>) {
     println("Running the main function");
     Day17().run("resource/day17.txt")
+    Day17().run2("resource/day17.txt")
 }
 
 // 5,6,0,3,0,2,4,3,6
