@@ -39,8 +39,6 @@ class Day25 {
     }
 
     fun solveV1() {
-        println("$keys")
-        println("$locks")
         val nbCouple = keys.fold(0) { acc, key ->
             acc + locks.fold(0) { subAcc, lock ->
                 subAcc+ (if (key.areComplement(lock)) 1 else 0)
